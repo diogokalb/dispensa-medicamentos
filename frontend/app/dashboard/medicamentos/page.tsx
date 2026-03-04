@@ -57,6 +57,10 @@ function setNum(setter: (v: ProdutoSaveDto) => void, form: ProdutoSaveDto, field
   setter({ ...form, [field]: val === "" ? null : Number(val) });
 }
 
+// ─── Constants ─────────────────────────────────────────────────────────────
+
+const LOW_STOCK_THRESHOLD = 10;
+
 // ─── Main component ────────────────────────────────────────────────────────
 
 export default function MedicamentosPage() {
@@ -199,20 +203,28 @@ export default function MedicamentosPage() {
           </div>
           <button
             onClick={handleNew}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm"
           >
-            + Novo Medicamento
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clipRule="evenodd" />
+            </svg>
+            Novo Medicamento
           </button>
         </div>
 
         {/* Search */}
-        <div className="mb-4">
+        <div className="mb-4 relative">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
+            </svg>
+          </span>
           <input
             type="text"
             placeholder="Buscar por descrição…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full sm:w-80 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-80 rounded-xl border border-gray-300 pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
           />
         </div>
 
@@ -222,16 +234,16 @@ export default function MedicamentosPage() {
         )}
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-[#1e3a5f]">
                 <tr>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Código</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Descrição</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Un.</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 hidden md:table-cell">Grupo</th>
-                  <th className="text-right px-4 py-3 font-semibold text-gray-600 hidden lg:table-cell">Estoque</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white">Código</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white">Descrição</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white">Un.</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white hidden md:table-cell">Grupo</th>
+                  <th className="text-right px-4 py-3 font-semibold text-white hidden lg:table-cell">Estoque</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -239,17 +251,31 @@ export default function MedicamentosPage() {
                   <tr><td colSpan={5} className="text-center py-12 text-gray-400">Carregando…</td></tr>
                 ) : items.length === 0 ? (
                   <tr><td colSpan={5} className="text-center py-12 text-gray-400">Nenhum produto encontrado.</td></tr>
-                ) : items.map((item) => (
+                ) : items.map((item, idx) => (
                   <tr
                     key={item.codigo}
                     onClick={() => handleEdit(item.codigo)}
-                    className="hover:bg-blue-50 cursor-pointer transition-colors"
+                    className={`hover:bg-blue-50 cursor-pointer transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
                   >
-                    <td className="px-4 py-3 font-mono text-gray-500">{item.codigo}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{item.descricao ?? "—"}</td>
+                    <td className="px-4 py-3 font-mono text-gray-500 text-xs">{item.codigo}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800 max-w-xs truncate">{item.descricao ?? "—"}</td>
                     <td className="px-4 py-3 text-gray-600">{item.un ?? "—"}</td>
                     <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{item.nomeGrupo ?? "—"}</td>
-                    <td className="px-4 py-3 text-right text-gray-600 hidden lg:table-cell">{fmtNum(item.estoqueTotal)}</td>
+                    <td className="px-4 py-3 text-right hidden lg:table-cell">
+                      {item.estoqueTotal != null ? (
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          item.estoqueTotal <= 0
+                            ? "bg-red-100 text-red-700"
+                            : item.estoqueTotal <= LOW_STOCK_THRESHOLD
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-green-100 text-green-700"
+                        }`}>
+                          {fmtNum(item.estoqueTotal)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -260,18 +286,18 @@ export default function MedicamentosPage() {
           {totalPages > 1 && (
             <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between text-sm">
               <span className="text-gray-500">Total: {total} produtos</span>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage(p => p - 1)}
-                  className="px-3 py-1 rounded border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
-                >←</button>
-                <span className="px-3 py-1">{page} / {totalPages}</span>
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-colors text-xs font-medium"
+                >← Anterior</button>
+                <span className="px-3 py-1.5 text-xs text-gray-600">{page} / {totalPages}</span>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage(p => p + 1)}
-                  className="px-3 py-1 rounded border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
-                >→</button>
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-colors text-xs font-medium"
+                >Próxima →</button>
               </div>
             </div>
           )}
@@ -533,18 +559,18 @@ export default function MedicamentosPage() {
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Unidade</th>
-                      <th className="text-right px-4 py-2 font-semibold text-gray-600">Quantidade</th>
-                      <th className="text-right px-4 py-2 font-semibold text-gray-600">Valor</th>
+                    <tr className="bg-[#1e3a5f]">
+                      <th className="text-left px-4 py-2 font-semibold text-white">Unidade</th>
+                      <th className="text-right px-4 py-2 font-semibold text-white">Quantidade</th>
+                      <th className="text-right px-4 py-2 font-semibold text-white">Valor</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {estoque.map((e, i) => (
-                      <tr key={i}>
-                        <td className="px-4 py-2">{e.codUnidade}</td>
-                        <td className="px-4 py-2 text-right">{fmtNum(e.quantidade)}</td>
-                        <td className="px-4 py-2 text-right">{fmtNum(e.valor)}</td>
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                        <td className="px-4 py-2 text-gray-700">{e.codUnidade}</td>
+                        <td className="px-4 py-2 text-right text-gray-700">{fmtNum(e.quantidade)}</td>
+                        <td className="px-4 py-2 text-right text-gray-700">{fmtNum(e.valor)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -560,22 +586,28 @@ export default function MedicamentosPage() {
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Lote</th>
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Validade</th>
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Ativo</th>
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Fabricante</th>
+                    <tr className="bg-[#1e3a5f]">
+                      <th className="text-left px-4 py-2 font-semibold text-white">Lote</th>
+                      <th className="text-left px-4 py-2 font-semibold text-white">Validade</th>
+                      <th className="text-left px-4 py-2 font-semibold text-white">Status</th>
+                      <th className="text-left px-4 py-2 font-semibold text-white">Fabricante</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {lotes.map((l, i) => {
                       const isAtivo = l.ativo?.toUpperCase() === "SIM" || l.ativo === "S";
                       return (
-                        <tr key={i} className={isAtivo ? "text-blue-700" : "text-red-600"}>
-                          <td className="px-4 py-2">{l.loteNum ?? "—"}</td>
-                          <td className="px-4 py-2">{fmtDate(l.dtValidade)}</td>
-                          <td className="px-4 py-2">{l.ativo ?? "—"}</td>
-                          <td className="px-4 py-2">{l.nomeFabricante ?? "—"}</td>
+                        <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                          <td className="px-4 py-2 font-medium text-blue-700">{l.loteNum ?? "—"}</td>
+                          <td className="px-4 py-2 text-gray-700">{fmtDate(l.dtValidade)}</td>
+                          <td className="px-4 py-2">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                              isAtivo ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                            }`}>
+                              {isAtivo ? "Ativo" : "Inativo"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">{l.nomeFabricante ?? "—"}</td>
                         </tr>
                       );
                     })}
@@ -592,16 +624,16 @@ export default function MedicamentosPage() {
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Código de Barras</th>
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Fabricante</th>
+                    <tr className="bg-[#1e3a5f]">
+                      <th className="text-left px-4 py-2 font-semibold text-white">Código de Barras</th>
+                      <th className="text-left px-4 py-2 font-semibold text-white">Fabricante</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {barras.map((b, i) => (
-                      <tr key={i}>
-                        <td className="px-4 py-2 font-mono">{b.codigoBarras ?? "—"}</td>
-                        <td className="px-4 py-2">{b.nomeFabricante ?? "—"}</td>
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                        <td className="px-4 py-2 font-mono text-blue-700">{b.codigoBarras ?? "—"}</td>
+                        <td className="px-4 py-2 text-gray-600">{b.nomeFabricante ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -617,14 +649,14 @@ export default function MedicamentosPage() {
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600">Componente</th>
+                    <tr className="bg-[#1e3a5f]">
+                      <th className="text-left px-4 py-2 font-semibold text-white">Componente</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {componentes.map((c, i) => (
-                      <tr key={i}>
-                        <td className="px-4 py-2">{c.nomeComponente ?? c.componente ?? "—"}</td>
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                        <td className="px-4 py-2 text-gray-700">{c.nomeComponente ?? c.componente ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
