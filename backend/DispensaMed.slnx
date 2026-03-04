@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DispensaMed.API/DispensaMed.API.csproj" />
+  <Project Path="DispensaMed.Application/DispensaMed.Application.csproj" />
+  <Project Path="DispensaMed.Domain/DispensaMed.Domain.csproj" />
+  <Project Path="DispensaMed.Infrastructure/DispensaMed.Infrastructure.csproj" />
+</Solution>
