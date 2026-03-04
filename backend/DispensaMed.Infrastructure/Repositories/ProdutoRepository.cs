@@ -21,6 +21,11 @@ public class ProdutoRepository : IProdutoRepository
             SELECT p.CODIGO, p.CODCOMPRAS, p.DESCRICAO, p.DESCRICAOABREVIADA, p.UN,
                    p.CODGRUPO, p.DURACAO, p.ESTOQUEMINIMO, p.ESTOQUEMAXIMO,
                    p.QTDCODBARRAS, p.PRECO, p.OBS, p.NOMEGENEXICO AS NOMEGENERICO,
+                   p.LABORATORIO, p.CODIGOHORUS, p.HORUSTIPO, p.DCB,
+                   p.APRESENTACAO, p.LISTA, p.LISTABASICA, p.CUSTOMEDIO,
+                   p.ULTIMOCUSTO, p.QTDTOTAL, p.DATADESATIVADO
+            FROM PRODUTOS p
+            WHERE p.CODIGO = @Id
             """;
         return await conn.QueryFirstOrDefaultAsync<Produto>(sql, new { Id = id });
     }
