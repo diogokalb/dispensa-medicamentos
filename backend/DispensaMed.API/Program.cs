@@ -54,9 +54,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<DatabaseInitializer>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<IGrupoProdutoRepository, GrupoProdutoRepository>();
 
 // Application
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddScoped<IGrupoProdutoService, GrupoProdutoService>();
 
 // ─── Build & Configure ───────────────────────────────────────────────────────
 
